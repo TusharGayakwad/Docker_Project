@@ -1,0 +1,36 @@
+FROM ubuntu:14.04
+
+LABEL name="Tushar"
+LABEL email="tushargayakwad29@gmail.com"
+
+ARG NAME=tushar
+ARG PASS=password123
+
+WORKDIR /tmp
+
+# Write passwords to files
+RUN pwd > 1stpwd.txt && \
+    pwd > 2ndpwd.txt && \
+    pwd > 3rdpwd.txt
+
+# Install SSH server and Python
+RUN apt-get update && \
+    apt-get install -y openssh-server python
+
+# Create a user and set the password
+RUN useradd -d /home/$NAME -g root -G sudo -m -p $(echo "$PASS" | openssl passwd -1 -stdin) $NAME
+
+# Write current user information to files
+RUN whoami > 1stwhomi.txt && \
+    USER=$NAME whoami > 2ndwhomi.txt
+
+USER $NAME
+
+# Confirm user change by writing current user information to a file
+RUN whoami > 3rdwhomi.txt
+
+RUN mkdir -p /tmp/project
+COPY project /tmp/project/
+
+CMD ["/usr/sbin/sshd", "-D"]
+    
